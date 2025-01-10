@@ -7,6 +7,7 @@ import numpy as np
 import datetime
 import base64
 
+st.set_option('server.maxUploadSize', 10240)
 # Define Major Variables
 output_dir = os.path.join(os.getcwd(), 'OutputFiles')
 Study_Output = os.path.join(output_dir, 'output_ARBStudy.xlsx')
