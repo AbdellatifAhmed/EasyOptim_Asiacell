@@ -1,0 +1,8 @@
+pyxlsb
+numpy
+openpyxl
+pandas
+streamlit
+geopy
+scipy
+shapely
