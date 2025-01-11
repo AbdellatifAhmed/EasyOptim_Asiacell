@@ -726,7 +726,7 @@ st.markdown("""
 - **Radio Counters**: `L.ChMeas.PRB.DL.Avail`, `Used Rank1 _Asiacell`, `Used Rank2 _Asiacell`, `Used Rank3 _Asiacell`, `Used Rank4 _Asiacell`, `Downlink EARFCN`
 , `DL User Throughput_Asiacell`, `UL Interference_Asiacell`, `Average CQI`, `BW(PRBs)`, `DL IBLER_Asiacell`, `4G DL Traffic Volume (GB)_Asiacell`, `4G UL Traffic Volume (GB)_Asiacell`
 , `HW_DL PRB Avg Utilization(%)`, `L.Traffic.ActiveUser.Avg`, `UL IBLER_Asiacell`, `LTECell Tx and Rx Mode`.
-- **Radio Part**: Data must be collected `Hourly cell Level`.
+- **Radio Part**: Data must be collected `Hourly cell Level`, File must be CSV, must contain `eNodeB Name`,`LocalCell Id`.
 - **Needed Radio Counters**: Limited to `<`, `>`, `=`, `<=`, `>=`.
 - **Needed Tx Counters**: must be same name in KPIs report related to the technology.
 """)   
