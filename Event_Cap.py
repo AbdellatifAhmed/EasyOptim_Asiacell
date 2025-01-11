@@ -728,7 +728,8 @@ st.markdown("""
 , `HW_DL PRB Avg Utilization(%)`, `L.Traffic.ActiveUser.Avg`, `UL IBLER_Asiacell`, `LTECell Tx and Rx Mode`.
 - **Radio Part**: Data must be collected `Hourly cell Level`, File must be CSV, must contain `eNodeB Name`,`LocalCell Id`.
 - **Needed Radio Counters**: Limited to `<`, `>`, `=`, `<=`, `>=`.
-- **Needed Tx Counters**: must be same name in KPIs report related to the technology.
+- **Needed Tx/EtherPort Counters**: Etherport Counters file must contain `FEGE.RxMaxSpeed (Mbps)(Mbps)`, Tx Flow Control Counters File must contain `VS.RscGroup.FlowCtrol.DL.DropNum`, `VS.RscGroup.FlowCtrol.DL.ReceiveNum`.
+- **Dates Condition**: All reports must contain dates for the Event [Start/End] and Normal Days [Start/End]
 """)   
 with st.expander("Specify conditions for the Capacity Tool ", expanded=True):
     event_cal_col,nor_cal_col,rad_thrshld_col,tx_thrshld_col = st.columns(4)
