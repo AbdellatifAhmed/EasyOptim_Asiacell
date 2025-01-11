@@ -723,10 +723,12 @@ st.write("**Instructions:**")
 st.markdown("""
 - **Technology Study**: Limited to `4G`.
 - **Formulas**: Matching to `Ooredoo Group`.
-- **Counters**: Matching  `HUAWEI 4G Counters`.
-- **Logical_Condition1, Logical_Condition2**: Limited to `<`, `>`, `=`, `<=`, `>=`.
-- **Indicator1, Indicator2**: must be same name in KPIs report related to the technology.
-- Input KPIs reports must be in **CSV formate** `output report from Nokia Netact are with SemiColumn delimiter`.
+- **Radio Counters**: `L.ChMeas.PRB.DL.Avail`, `Used Rank1 _Asiacell`, `Used Rank2 _Asiacell`, `Used Rank3 _Asiacell`, `Used Rank4 _Asiacell`, `Downlink EARFCN`
+, `DL User Throughput_Asiacell`, `UL Interference_Asiacell`, `Average CQI`, `BW(PRBs)`, `DL IBLER_Asiacell`, `4G DL Traffic Volume (GB)_Asiacell`, `4G UL Traffic Volume (GB)_Asiacell`
+, `HW_DL PRB Avg Utilization(%)`, `L.Traffic.ActiveUser.Avg`, `UL IBLER_Asiacell`, `LTECell Tx and Rx Mode`.
+- **Radio Part**: Data must be collected `Hourly cell Level`.
+- **Needed Radio Counters**: Limited to `<`, `>`, `=`, `<=`, `>=`.
+- **Needed Tx Counters**: must be same name in KPIs report related to the technology.
 """)   
 with st.expander("Specify conditions for the Capacity Tool ", expanded=True):
     event_cal_col,nor_cal_col,rad_thrshld_col,tx_thrshld_col = st.columns(4)
