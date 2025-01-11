@@ -496,12 +496,10 @@ def arb_Study(arb_form):
         Citeis_Summary.to_excel(writer, sheet_name='Cities Requirements Summary', index=False)
         if arb_form['fileArbEthernetCounters']:
             site_etherPort.to_excel(writer, sheet_name='Access Tx BW', index=False)
-        
-
-
     end_time =time.time()
     duration = str(round((end_time - start_time),0))+" Seconds"
     print("Preparing Massive Event Capacity Assesment consumed a duration of:", duration)
+    return duration
 
 def get_band_by_frequency(frequency):
     bands = [
