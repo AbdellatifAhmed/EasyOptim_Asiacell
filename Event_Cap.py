@@ -7,7 +7,6 @@ import numpy as np
 import datetime
 import base64
 
-# st.set_option('server.maxUploadSize', 10240)
 # Define Major Variables
 output_dir = os.path.join(os.getcwd(), 'OutputFiles')
 Study_Output = os.path.join(output_dir, 'output_ARBStudy.xlsx')
@@ -26,6 +25,10 @@ Mimo_df = pd.DataFrame({'Mimo Num': [ 1 , 2 , 4], 'MIMO': ['1Tx1Rx' , '2Tx2Rx' ,
 def arb_Study(arb_form):
     start_time = time.time()
     print("ARB Study initiated")
+    normal_start_date = pd.to_datetime(arb_form['normalStartDate'])
+    normal_end_date = pd.to_datetime(arb_form['normalEndDate'])
+    event_start_date = pd.to_datetime(arb_form['eventStartDate'])
+    event_end_date = pd.to_datetime(arb_form['eventEndDate'])
     
     fileArbRadioCounters = arb_form['fileArbRadioCounters']
     forecast_DF =   pd.read_excel(arb_form['fileArbForecast'],sheet_name='Forecast')
@@ -33,7 +36,7 @@ def arb_Study(arb_form):
     if arb_form['filesiteScope']:
         scope_DF = pd.read_excel(arb_form['filesiteScope'])
     # start_time = time.time()
-    file_stream = io.TextIOWrapper(fileArbRadioCounters.file, encoding='utf-8')
+    file_stream = io.TextIOWrapper(fileArbRadioCounters, encoding='utf-8')
     # thrpt_cells = pd.read_csv(file_stream, skiprows=6, skipfooter=1, engine='python', encoding='utf-8')
     # Initialize an empty list to hold DataFrame chunks
     chunks = []
@@ -68,8 +71,8 @@ def arb_Study(arb_form):
     arb_Radio.rename(columns={'Used Rank2 _Asiacell': 'RANK2%'}, inplace=True)
     arb_Radio.rename(columns={'Used Rank3 _Asiacell': 'RANK3%'}, inplace=True)
     arb_Radio.rename(columns={'Used Rank4 _Asiacell': 'RANK4%'}, inplace=True)        
-
-    arb_Radio['Site_Time_LKUP'] = arb_Radio['Code'] + "_" + arb_Radio['Date'] + "_" + arb_Radio['Time']
+    arb_Radio['Date'] = pd.to_datetime(arb_Radio['Date'],format='%d-%m-%Y', errors='coerce')
+    arb_Radio['Site_Time_LKUP'] = (arb_Radio['Code'] + "_" + arb_Radio['Date'].dt.strftime('%Y-%m-%d') + "_" + arb_Radio['Time'])
     arb_Radio['Downlink EARFCN'] = arb_Radio['Downlink EARFCN'].apply(pd.to_numeric , errors='coerce')  
     arb_Radio['Frequency Band'] = arb_Radio.apply(lambda row: get_band_by_frequency(row['Downlink EARFCN']) , axis=1)      
     arb_Radio['DL User Throughput_Asiacell'] = arb_Radio['DL User Throughput_Asiacell'].apply(pd.to_numeric , errors='coerce')
@@ -115,8 +118,8 @@ def arb_Study(arb_form):
     Sites_Forecast = arb_Radio[Sites_Forecast_Cols].drop_duplicates()
 
     cities_Normal_Traffic = arb_Radio[
-    (arb_Radio['Date'] >= arb_form['normalStartDate']) & 
-    (arb_Radio['Date'] <= arb_form['normalEndDate'])
+    (arb_Radio['Date'] >= normal_start_date) & 
+    (arb_Radio['Date'] <= normal_end_date)
     ].pivot_table(
     values=['LTE Data Volume (TB)'], 
     index=['City'], 
@@ -135,8 +138,8 @@ def arb_Study(arb_form):
     del cities_Normal_Traffic
 
     cities_Event_Traffic = arb_Radio[
-    (arb_Radio['Date'] >= arb_form['eventStartDate']) & 
-    (arb_Radio['Date'] <= arb_form['eventEndDate'])
+    (arb_Radio['Date'] >= event_start_date) & 
+    (arb_Radio['Date'] <= event_end_date)
     ].pivot_table(
     values=['LTE Data Volume (TB)'], 
     index=['City'], 
@@ -166,8 +169,8 @@ def arb_Study(arb_form):
 
     
     sites_Normal_Traffic = arb_Radio[
-    (arb_Radio['Date'] >= arb_form['normalStartDate']) & 
-    (arb_Radio['Date'] <= arb_form['normalEndDate'])
+    (arb_Radio['Date'] >= normal_start_date) & 
+    (arb_Radio['Date'] <= normal_end_date)
     ].pivot_table(
     values=['LTE Data Volume (TB)'], 
     index=['Code'], 
@@ -184,8 +187,8 @@ def arb_Study(arb_form):
     del sites_Normal_Traffic
 
     sites_Event_Traffic = arb_Radio[
-    (arb_Radio['Date'] >= arb_form['eventStartDate']) & 
-    (arb_Radio['Date'] <= arb_form['eventEndDate'])
+    (arb_Radio['Date'] >= event_start_date) & 
+    (arb_Radio['Date'] <= event_end_date)
     ].pivot_table(
     values=['LTE Data Volume (TB)'], 
     index=['Code'], 
@@ -292,8 +295,8 @@ def arb_Study(arb_form):
 
     arb_Radio['Site Forecast %'] = arb_Radio['Sector Code'].map(dict(zip(sectors_Config_DF['Sector Code'], sectors_Config_DF['Site Forecast %'])))
     Sectors_Load = arb_Radio[
-    (arb_Radio['Date'] >= arb_form['eventStartDate']) & 
-    (arb_Radio['Date'] <= arb_form['eventEndDate'])].pivot_table(
+    (arb_Radio['Date'] >= event_start_date) & 
+    (arb_Radio['Date'] <= event_end_date)].pivot_table(
     values=['LTE Data Volume (TB)', 'Calculated Cell THRPT', 'L.Traffic.ActiveUser.Avg', 'BW(PRBs)', 'Site Forecast %'], 
     index=['Sector Code'], 
     columns=['Date', 'Time'], 
@@ -311,6 +314,7 @@ def arb_Study(arb_form):
     # print(Sectors_Load.index)
     # Add recent Event Load to the sectors
     calculated_Load = get_Event_Util(Sectors_Load,utiThshld,qoshshld,False,False)
+    # print(calculated_Load)
     sectors_Config_DF['Max PRBs'] = sectors_Config_DF['Sector Code'].map(dict(zip(calculated_Load['Sector Code'], calculated_Load['Max PRBs'])))
     sectors_Config_DF['Event Load Times'] = sectors_Config_DF['Sector Code'].map(dict(zip(calculated_Load['Sector Code'], calculated_Load['High Load Times'])))
     print("Done Adding Event Load.")
@@ -347,8 +351,8 @@ def arb_Study(arb_form):
         # Getting the Load Times after the identifying the impact of the upgrade step
         arb_Radio['Upgrades Impact'] = arb_Radio['Sector Code'].map(dict(zip(sectors_Config_DF['Sector Code'], sectors_Config_DF[current_acc_Impact])))
         Sectors_Load = arb_Radio[
-            (arb_Radio['Date'] >= arb_form['eventStartDate']) & 
-            (arb_Radio['Date'] <= arb_form['eventEndDate'])].pivot_table(values=['LTE Data Volume (TB)', 'Calculated Cell THRPT', 'L.Traffic.ActiveUser.Avg', 'BW(PRBs)', 'Site Forecast %','Upgrades Impact'], 
+            (arb_Radio['Date'] >= event_start_date) & 
+            (arb_Radio['Date'] <= event_end_date)].pivot_table(values=['LTE Data Volume (TB)', 'Calculated Cell THRPT', 'L.Traffic.ActiveUser.Avg', 'BW(PRBs)', 'Site Forecast %','Upgrades Impact'], 
                                                                          index=['Sector Code'], 
                                                                          columns=['Date', 'Time'], 
                                                                          aggfunc={
@@ -374,8 +378,8 @@ def arb_Study(arb_form):
         sectors_Config_DF[current_Step] = sectors_Config_DF[current_Step].apply(lambda x: str(x).split(',')[1].replace("'", "").strip() if x != "" else "")
 
     study_inputs = {
-        'Normal Days': arb_form['normalStartDate'] + " : " + arb_form['normalEndDate'],
-        'Event Days': arb_form['eventStartDate'] + " : " + arb_form['eventEndDate'],
+        'Normal Days': arb_form['normalStartDate'].strftime('%Y-%m-%d') + " : " + arb_form['normalEndDate'].strftime('%Y-%m-%d'),
+        'Event Days': arb_form['eventStartDate'].strftime('%Y-%m-%d') + " : " + arb_form['eventEndDate'].strftime('%Y-%m-%d'),
         'QoS THRPT [Mbps]': arb_form['qoshshld'] ,
         'High OG Load Threshold': arb_form['utiThshld'] ,
         'Considered High Load Times for Upgrade': arb_form['hrshshld'], 
@@ -413,7 +417,7 @@ def arb_Study(arb_form):
     if arb_form['fileArbEthernetCounters']:
         print("Ethernet Port counters Exist")
         fileArbEthernetCounters = arb_form['fileArbEthernetCounters']
-        file_stream1 = io.TextIOWrapper(fileArbEthernetCounters.file, encoding='utf-8')
+        file_stream1 = io.TextIOWrapper(fileArbEthernetCounters, encoding='utf-8')
         chunks_EtherPort = []
         chunks_EtherPort_size = 1000000  # Adjust this value based on your memory capacity
         chunk_k=0
@@ -429,7 +433,7 @@ def arb_Study(arb_form):
         arb_Ether['Code'] = arb_Ether.apply(lambda row: str(row['eNodeB Name'])[-7:], axis=1)
         arb_Ether['City'] = arb_Ether.apply(lambda row: row['Code'][:3], axis=1)
         arb_Ether['Date'] = pd.to_datetime(arb_Ether['Date'], format='%d-%m-%Y')
-        arb_Ether = arb_Ether[(arb_Ether['Date'] >= arb_form['eventStartDate']) & (arb_Ether['Date'] <= arb_form['eventEndDate'])]
+        arb_Ether = arb_Ether[(arb_Ether['Date'] >= event_start_date) & (arb_Ether['Date'] <= event_end_date)]
         arb_Ether = arb_Ether[arb_Ether['Code'].isin(sectors_Config_DF['Code'])].copy()
         arb_Ether['FEGE.RxMaxSpeed (Mbps)(Mbps)']= arb_Ether['FEGE.RxMaxSpeed (Mbps)(Mbps)'].apply(pd.to_numeric , errors='coerce')
         arb_Ether['Tx BW [Mbps]'] = arb_Ether['FEGE.RxMaxSpeed (Mbps)(Mbps)'].apply(lambda x: 5*round(x/5,0))
@@ -455,7 +459,7 @@ def arb_Study(arb_form):
     if arb_form['fileArbFlowTxCounters']:
         print("Flow Control counters Exist")
         fileArbFlowTxCounters = arb_form['fileArbFlowTxCounters']
-        file_stream2 = io.TextIOWrapper(fileArbFlowTxCounters.file, encoding='utf-8')
+        file_stream2 = io.TextIOWrapper(fileArbFlowTxCounters, encoding='utf-8')
         chunks_flowCtrl = []
         chunks_flowCtrl_size = 1000000  # Adjust this value based on your memory capacity
         chunk_L=0
@@ -470,7 +474,7 @@ def arb_Study(arb_form):
         arb_FlowCtrl['Code'] = arb_FlowCtrl.apply(lambda row: str(row['eNodeB Name'])[-7:], axis=1)
         arb_FlowCtrl['City'] = arb_FlowCtrl.apply(lambda row: row['Code'][:3], axis=1)
         arb_FlowCtrl['Date'] = pd.to_datetime(arb_FlowCtrl['Date'], format='%d-%m-%Y')
-        arb_FlowCtrl = arb_FlowCtrl[(arb_FlowCtrl['Date'] >= arb_form['eventStartDate']) & (arb_FlowCtrl['Date'] <= arb_form['eventEndDate'])]
+        arb_FlowCtrl = arb_FlowCtrl[(arb_FlowCtrl['Date'] >= event_start_date) & (arb_FlowCtrl['Date'] <= event_end_date)]
         arb_FlowCtrl = arb_FlowCtrl[arb_FlowCtrl['Code'].isin(sectors_Config_DF['Code'])].copy()
         arb_FlowCtrl['VS.RscGroup.FlowCtrol.DL.DropNum']= arb_FlowCtrl['VS.RscGroup.FlowCtrol.DL.DropNum'].apply(pd.to_numeric , errors='coerce')
         arb_FlowCtrl['VS.RscGroup.FlowCtrol.DL.ReceiveNum']= arb_FlowCtrl['VS.RscGroup.FlowCtrol.DL.ReceiveNum'].apply(pd.to_numeric , errors='coerce')
@@ -589,6 +593,22 @@ def get_Event_Util(Sectors_Load,utiThshld,qoshshld,is_Forecast,is_Upgrade):
                     Sectors_Utilization[('LTE Utilization %', the_Date, The_time)] = ( Sectors_Load[forecast_Col] + 1) * Sectors_Load[active_users_col] / (Sectors_Load[cell_thrp_col] * ( 1 + Sectors_Load[upgrade_Impact]) / qoshshld)    
             except:
                 Sectors_Utilization[('LTE Utilization %', the_Date, The_time)] = 0
+                # print("Util Set to 0")
+    
+    
+    Sectors_Load = pd.concat([Sectors_Load, Sectors_Utilization], axis=1)
+    Sectors_Load['High Load Times'] = (Sectors_Load.xs('LTE Utilization %', level=0, axis=1) > utiThshld/100).sum(axis=1)
+    prb_col = Sectors_Load.columns[Sectors_Load.columns.get_level_values(0)=='BW(PRBs)']
+    Sectors_Load['Max PRBs'] = Sectors_Load[prb_col].max(axis=1)
+    # print(Sectors_Load.head)
+    if is_Upgrade:
+        Sectors_Load = Sectors_Load.drop(columns=['LTE Data Volume (TB)','Calculated Cell THRPT','L.Traffic.ActiveUser.Avg','BW(PRBs)','LTE Utilization %','Site Forecast %','Upgrades Impact'], level=0).reset_index()
+    else:
+        Sectors_Load = Sectors_Load.drop(columns=['LTE Data Volume (TB)','Calculated Cell THRPT','L.Traffic.ActiveUser.Avg','BW(PRBs)','LTE Utilization %','Site Forecast %'], level=0).reset_index()
+    Sectors_Load.columns = ['_'.join(str(sub_col) if sub_col is not pd.NaT else 'NaT' for sub_col in col).strip() for col in Sectors_Load.columns]
+    Sectors_Load.columns = ['Sector Code', 'High Load Times','Max PRBs']
+    return Sectors_Load
+
 
 def get_upgrade_Step(r,steps_DF,prev_Step,hrs_threshld,load_Col):
     if r[load_Col] != "":
@@ -761,3 +781,25 @@ with st.expander("Upload input files :", expanded=True):
             download_link = f'<a href="data:application/octet-stream;base64,{b64_file_data}" download="{os.path.basename(Study_Output)}">Click to download Study Output File {os.path.basename(Study_Output)}</a>'
         st.markdown(download_link, unsafe_allow_html=True) 
 
+st.markdown(
+    """
+    <style>
+    .footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background-color: #f8f9fa;
+        padding: 10px 0;
+        text-align: left;
+        font-size: 16px;
+        border-top: 2px solid #e0e0e0;
+    }
+    </style>
+    <div class="footer">
+        The Tool developed by Abdellatif Ahmed (abdellatif.ahmed@nokia.com)
+        
+    </div>
+    
+    """,
+    unsafe_allow_html=True,
+)
