@@ -719,7 +719,15 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
-
+st.write("**Instructions:**")
+st.markdown("""
+- **Technology Study**: Limited to `4G`.
+- **Formulas**: Matching to `Ooredoo Group`.
+- **Counters**: Matching  `HUAWEI 4G Counters`.
+- **Logical_Condition1, Logical_Condition2**: Limited to `<`, `>`, `=`, `<=`, `>=`.
+- **Indicator1, Indicator2**: must be same name in KPIs report related to the technology.
+- Input KPIs reports must be in **CSV formate** `output report from Nokia Netact are with SemiColumn delimiter`.
+""")   
 with st.expander("Specify conditions for the Capacity Tool ", expanded=True):
     event_cal_col,nor_cal_col,rad_thrshld_col,tx_thrshld_col = st.columns(4)
     event_cal_col.write("Previous Event Calender:")
@@ -744,15 +752,7 @@ with st.expander("Specify conditions for the Capacity Tool ", expanded=True):
     flwCtrlNumber = col4.number_input("Flow Ctrl drop No.", min_value=100, max_value=10000000, value=100000,step=100)
 
 with st.expander("Upload input files :", expanded=True):
-    st.write("**Instructions:**")
-    st.markdown("""
-    - **Technology Study**: Limited to `4G`.
-    - **Formulas**: Matching to `Ooredoo Group`.
-    - **Counters**: Matching  `HUAWEI 4G Counters`.
-    - **Logical_Condition1, Logical_Condition2**: Limited to `<`, `>`, `=`, `<=`, `>=`.
-    - **Indicator1, Indicator2**: must be same name in KPIs report related to the technology.
-    - Input KPIs reports must be in **CSV formate** `output report from Nokia Netact are with SemiColumn delimiter`.
-    """)    
+ 
     col_1,col_2,col_3,col_4,col_5 = st.columns(5)
     filesiteScope = col_1.file_uploader("Study Sites Scope:", type=["xlsx"])
     fileArbForecast= col_2.file_uploader("Data Forecast:", type=["xlsx"])
