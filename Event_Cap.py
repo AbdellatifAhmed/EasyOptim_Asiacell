@@ -429,14 +429,14 @@ def arb_Study(arb_form):
         arb_Ether = pd.concat(chunks_EtherPort, ignore_index=True)
         arb_Ether = arb_Ether[:-1]
         
-        arb_Ether = arb_Ether[arb_Ether['FEGE.RxMaxSpeed (Mbps)(Mbps)']>0]
+        arb_Ether = arb_Ether[arb_Ether['FEGE.RxMaxSpeed (Mbps)(Mbit/s)']>0]
         arb_Ether['Code'] = arb_Ether.apply(lambda row: str(row['eNodeB Name'])[-7:], axis=1)
         arb_Ether['City'] = arb_Ether.apply(lambda row: row['Code'][:3], axis=1)
         arb_Ether['Date'] = pd.to_datetime(arb_Ether['Date'], format='%d-%m-%Y')
         arb_Ether = arb_Ether[(arb_Ether['Date'] >= event_start_date) & (arb_Ether['Date'] <= event_end_date)]
         arb_Ether = arb_Ether[arb_Ether['Code'].isin(sectors_Config_DF['Code'])].copy()
-        arb_Ether['FEGE.RxMaxSpeed (Mbps)(Mbps)']= arb_Ether['FEGE.RxMaxSpeed (Mbps)(Mbps)'].apply(pd.to_numeric , errors='coerce')
-        arb_Ether['Tx BW [Mbps]'] = arb_Ether['FEGE.RxMaxSpeed (Mbps)(Mbps)'].apply(lambda x: 5*round(x/5,0))
+        arb_Ether['FEGE.RxMaxSpeed (Mbps)(Mbit/s)']= arb_Ether['FEGE.RxMaxSpeed (Mbps)(Mbit/s)'].apply(pd.to_numeric , errors='coerce')
+        arb_Ether['Tx BW [Mbps]'] = arb_Ether['FEGE.RxMaxSpeed (Mbps)(Mbit/s)'].apply(lambda x: 5*round(x/5,0))
         end_time =time.time()
         duration = str(round((end_time - start_time),0))+" Seconds"
         print("Done Processing the EtherPort Speed and Tx BW consumed prepared, consumed time is :", duration)
@@ -728,7 +728,7 @@ st.markdown("""
 , `HW_DL PRB Avg Utilization(%)`, `L.Traffic.ActiveUser.Avg`, `UL IBLER_Asiacell`, `LTECell Tx and Rx Mode`.
 - **Radio Part**: Data must be collected `Hourly cell Level`, File must be CSV, must contain `eNodeB Name`,`LocalCell Id`.
 - **Needed Radio Counters**: Limited to `<`, `>`, `=`, `<=`, `>=`.
-- **Needed Tx/EtherPort Counters**: Etherport Counters file must contain `FEGE.RxMaxSpeed (Mbps)(Mbps)`, Tx Flow Control Counters File must contain `VS.RscGroup.FlowCtrol.DL.DropNum`, `VS.RscGroup.FlowCtrol.DL.ReceiveNum`.
+- **Needed Tx/EtherPort Counters**: Etherport Counters file must contain `FEGE.RxMaxSpeed (Mbps)(Mbit/s)`, Tx Flow Control Counters File must contain `VS.RscGroup.FlowCtrol.DL.DropNum`, `VS.RscGroup.FlowCtrol.DL.ReceiveNum`.
 - **Dates Condition**: All reports must contain dates for the Event [Start/End] and Normal Days [Start/End]
 """)   
 with st.expander("Specify conditions for the Capacity Tool ", expanded=True):
@@ -813,3 +813,4 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
