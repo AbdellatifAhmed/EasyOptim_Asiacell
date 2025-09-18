@@ -40,7 +40,7 @@ def arb_Study(arb_form):
     # thrpt_cells = pd.read_csv(file_stream, skiprows=6, skipfooter=1, engine='python', encoding='utf-8')
     # Initialize an empty list to hold DataFrame chunks
     chunks = []
-    chunk_size = 1000000  # Adjust this value based on your memory capacity
+    chunk_size = 100000  # Adjust this value based on your memory capacity
     # Read the CSV file in chunks
     chunk_j=0
     for chunk in pd.read_csv(file_stream, skiprows=6, engine='python', encoding='utf-8', chunksize=chunk_size):
@@ -419,7 +419,7 @@ def arb_Study(arb_form):
         fileArbEthernetCounters = arb_form['fileArbEthernetCounters']
         file_stream1 = io.TextIOWrapper(fileArbEthernetCounters, encoding='utf-8')
         chunks_EtherPort = []
-        chunks_EtherPort_size = 1000000  # Adjust this value based on your memory capacity
+        chunks_EtherPort_size = 100000  # Adjust this value based on your memory capacity
         chunk_k=0
         for chunk in pd.read_csv(file_stream1, skiprows=6, engine='python', encoding='utf-8', chunksize=chunks_EtherPort_size):
             chunks_EtherPort.append(chunk)
@@ -461,7 +461,7 @@ def arb_Study(arb_form):
         fileArbFlowTxCounters = arb_form['fileArbFlowTxCounters']
         file_stream2 = io.TextIOWrapper(fileArbFlowTxCounters, encoding='utf-8')
         chunks_flowCtrl = []
-        chunks_flowCtrl_size = 1000000  # Adjust this value based on your memory capacity
+        chunks_flowCtrl_size = 100000  # Adjust this value based on your memory capacity
         chunk_L=0
         for chunk in pd.read_csv(file_stream2, skiprows=6, engine='python', encoding='utf-8', chunksize=chunks_flowCtrl_size):
             chunks_flowCtrl.append(chunk)
@@ -813,4 +813,5 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
 
